@@ -271,7 +271,7 @@ Contributions are welcome!
 
 Please feel free to [create an issue](https://github.com/textbee/textbee/issues/new) in the repository for any bug reports or feature requests. Make sure to provide a detailed description of the issue or feature you are requesting and properly label whether it is a bug or a feature request.
 
-Please note that if you discover any vulnerability or security issue, we kindly request that you refrain from creating a public issue. Instead, send an email detailing the vulnerability to contact@cloudtext.frionode.online.
+Please note that if you discover any vulnerability or security issue, we kindly request that you refrain from creating a public issue. Instead, send an email detailing the vulnerability to cloudtext@frionode.online.
 
 ## For support, feedback, and questions
-Feel free to reach out to us at contact@cloudtext.frionode.online or [Join our Discord server](https://cloudtext.frionode.online/discord)
+Feel free to reach out to us at cloudtext@frionode.online or [Join our Discord server](https://cloudtext.frionode.online/discord)
