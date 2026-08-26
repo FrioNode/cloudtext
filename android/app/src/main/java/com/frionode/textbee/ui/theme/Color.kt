@@ -2,11 +2,13 @@ package com.frionode.textbee.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
-val Orange700 = Color(0xFFC4620A)
-val Orange800 = Color(0xFFA04405)
-val Orange600 = Color(0xFFB45309)
-val Orange900 = Color(0xFF92400E)
-val OrangeLight = Color(0xFFFFF7ED)
+// Rebrand: the primary accent is a vivid blue (#0B78F4), hue 212.
+// Ramp mirrors the web brand-* scale so both clients match.
+val Blue600 = Color(0xFF0B78F4) // brand primary (#0B78F4)
+val Blue700 = Color(0xFF1368C9)
+val Blue800 = Color(0xFF14559F)
+val Blue900 = Color(0xFF15467F)
+val BlueLight = Color(0xFFF0F7FF)
 
 val Gray50  = Color(0xFFF9FAFB)
 val Gray100 = Color(0xFFF3F4F6)

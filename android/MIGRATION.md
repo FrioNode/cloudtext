@@ -11,7 +11,7 @@ textbee Android is mid-migration from a Java/XML legacy codebase to Kotlin + Jet
 ### Theme
 | File | Notes |
 |---|---|
-| `ui/theme/Color.kt` | Brand orange (`#C4620A`), full light/dark palette |
+| `ui/theme/Color.kt` | Brand blue (`#0B78F4`), full light/dark palette |
 | `ui/theme/Theme.kt` | `TextbeeTheme` wrapper, `dynamicColor = false` to preserve brand color |
 | `ui/theme/Type.kt` | Material3 typography scale |
 
@@ -179,8 +179,8 @@ Once Compose UI is stable and rolled out to all users, remove the legacy UI enti
 
 ## Key Constraints to Keep in Mind
 
-- **`dynamicColor = false`** in `Theme.kt` — Material You overrides the brand orange on Android 12+; must stay false
-- **`primaryContainer` avoided** in TopAppBar/nav — causes orange-on-orange in dark mode; use `surface` for bars, `surfaceVariant` for nav indicator
+- **`dynamicColor = false`** in `Theme.kt` — Material You overrides the brand blue on Android 12+; must stay false
+- **`primaryContainer` avoided** in TopAppBar/nav — causes blue-on-blue in dark mode; use `surface` for bars, `surfaceVariant` for nav indicator
 - **Java/Kotlin interop** — Only `ApiManager.java`, `TextbeeUtils.java`, legacy activities, and `GatewayApiService.java` remain Java; all others are Kotlin
 - **WorkManager workers** — kept as `Worker` subclass (not `CoroutineWorker`) to avoid adding `work-runtime-ktx`; straightforward conversion candidate in a future cleanup
 - **Sticky notification on Android 12+** — `ForegroundServiceStartNotAllowedException` is caught broadly; `DashboardViewModel` restarts service on every launch to compensate for OS killing it in the background
