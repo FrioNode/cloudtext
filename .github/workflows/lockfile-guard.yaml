@@ -1,0 +1,37 @@
+# Fails any PR where a pnpm-lock.yaml changes without its sibling
+# package.json. A lockfile that moves on its own means someone (or some
+# bot) re-resolved dependencies wholesale, which is how PR #270 shipped a
+# broken zod major bump inside @polar-sh/sdk. See issue #271.
+name: Lockfile guard
+
+on:
+  pull_request:
+    paths:
+      - '**/pnpm-lock.yaml'
+      - '**/package.json'
+
+jobs:
+  guard:
+    name: Lockfile changes match a package.json change
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Fail if a lockfile changed without its package.json
+        env:
+          BASE_REF: ${{ github.base_ref }}
+        run: |
+          changed="$(git diff --name-only "origin/${BASE_REF}"...HEAD)"
+          failed=0
+          for app in api web; do
+            if grep -qx "$app/pnpm-lock.yaml" <<<"$changed" \
+              && ! grep -qx "$app/package.json" <<<"$changed"; then
+              echo "::error::$app/pnpm-lock.yaml changed without $app/package.json. Restore the lockfile, or include the package.json change that motivates it."
+              failed=1
+            fi
+          done
+          exit "$failed"

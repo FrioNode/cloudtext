@@ -1,0 +1,37 @@
+{{#> email-layout title='Your account is scheduled for deletion' preheader='Reply within 7 days if you want to keep it.'}}
+  <p style='margin:0 0 14px 0;'>Hi {{name}},</p>
+
+  <p style='margin:0 0 4px 0;'>
+    We received your request to delete the textbee account for {{email}}.
+    Sorry to see you go.
+  </p>
+
+  {{#> email-note}}
+    <strong style='color:#111827;'>What happens next</strong>
+    <table role='presentation' cellpadding='0' cellspacing='0' border='0' style='margin-top:8px;'>
+      <tr>
+        <td valign='top' style='padding:0 8px 6px 0; color:#EA580C;'>&bull;</td>
+        <td style='padding:0 0 6px 0;'>Deletion is processed within 7 days.</td>
+      </tr>
+      <tr>
+        <td valign='top' style='padding:0 8px 6px 0; color:#EA580C;'>&bull;</td>
+        <td style='padding:0 0 6px 0;'>You can still sign in until then.</td>
+      </tr>
+      <tr>
+        <td valign='top' style='padding:0 8px 0 0; color:#EA580C;'>&bull;</td>
+        <td>Once processed, your data is removed permanently and cannot be recovered.</td>
+      </tr>
+    </table>
+  {{/email-note}}
+
+  {{#if message}}
+    <p style='margin:20px 0 0 0; font:14px/1.6 Arial, Helvetica, sans-serif; color:#4b5563;'>
+      Reason you gave: {{message}}
+    </p>
+  {{/if}}
+
+  <p style='margin:20px 0 0 0;'>
+    <strong style='color:#111827;'>Changed your mind?</strong>
+    Reply to this email and we will stop the deletion.
+  </p>
+{{/email-layout}}

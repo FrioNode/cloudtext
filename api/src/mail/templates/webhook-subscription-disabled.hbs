@@ -1,0 +1,29 @@
+{{#> email-layout title='We paused one of your webhooks' preheader='Repeated delivery failures, so we turned it off. Re-enable it when the endpoint is fixed.'}}
+  <p style='margin:0 0 14px 0;'>Hi {{name}},</p>
+
+  <p style='margin:0 0 4px 0;'>
+    Deliveries to this endpoint kept failing, so we turned the webhook off. That
+    stops the retries from piling up against your account.
+  </p>
+
+  {{#> email-note}}
+    {{#if subscriptionName}}
+      <div style='font:13px/1.4 Arial, Helvetica, sans-serif; color:#6b7280;'>Webhook</div>
+      <div style='margin:2px 0 12px 0; color:#111827;'>{{subscriptionName}}</div>
+    {{/if}}
+    <div style='font:13px/1.4 Arial, Helvetica, sans-serif; color:#6b7280;'>Endpoint</div>
+    <div style='margin:2px 0 12px 0; word-break:break-all; color:#111827;'>{{deliveryUrl}}</div>
+    {{#if totalAttempts}}
+      <div style='font:13px/1.4 Arial, Helvetica, sans-serif; color:#6b7280;'>Last {{lookbackDays}} days</div>
+      <div style='margin-top:2px; color:#111827;'>
+        {{failureCount}} failed, {{successCount}} succeeded out of {{totalAttempts}} attempts ({{failureRatePercent}}% failure rate)
+      </div>
+    {{/if}}
+  {{/email-note}}
+
+  <p style='margin:20px 0 0 0;'>
+    Fix the endpoint, then switch the webhook back on in the dashboard.
+  </p>
+
+  {{> email-button}}
+{{/email-layout}}

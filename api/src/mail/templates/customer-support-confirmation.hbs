@@ -1,0 +1,21 @@
+{{#> email-layout title='We got your message' preheader='Our team will reply to this address.'}}
+  <p style='margin:0 0 14px 0;'>Hi {{name}},</p>
+
+  <p style='margin:0 0 4px 0;'>
+    Thanks for getting in touch. We have your request and will reply to this
+    address. You can add anything else by replying here.
+  </p>
+
+  {{#> email-note}}
+    <div style='font:13px/1.4 Arial, Helvetica, sans-serif; color:#6b7280;'>Category</div>
+    <div style='margin:2px 0 12px 0; color:#111827;'>{{category}}</div>
+    <div style='font:13px/1.4 Arial, Helvetica, sans-serif; color:#6b7280;'>Your message</div>
+    <div style='margin-top:2px; white-space:pre-wrap; color:#111827;'>{{message}}</div>
+  {{/email-note}}
+
+  <p style='margin:20px 0 0 0; font:14px/1.6 Arial, Helvetica, sans-serif; color:#4b5563;'>
+    While you wait, the community on Discord may already have an answer.
+  </p>
+
+  {{> email-button ctaUrl='https://cloudtext.frionode.online/discord' ctaLabel='Ask the community'}}
+{{/email-layout}}

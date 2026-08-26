@@ -1,0 +1,2499 @@
+{
+  "openapi": "3.0.0",
+  "paths": {
+    "/api/v1/gateway/stats": {
+      "get": {
+        "description": "Messages sent, messages received, devices, and API keys across your whole account.",
+        "operationId": "GatewayController_getStats_v1",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Account totals.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GatewayStatsResponseDTO"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing, invalid, or revoked API key."
+          }
+        },
+        "security": [
+          {
+            "x-api-key": []
+          }
+        ],
+        "summary": "Get account totals",
+        "tags": [
+          "gateway"
+        ]
+      }
+    },
+    "/api/v1/gateway/devices": {
+      "get": {
+        "description": "Every phone paired with your account. The push token and hardware serial are never returned.",
+        "operationId": "GatewayController_getDevices_v1",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Your devices.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeviceListResponseDTO"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing, invalid, or revoked API key."
+          }
+        },
+        "security": [
+          {
+            "x-api-key": []
+          }
+        ],
+        "summary": "List your devices",
+        "tags": [
+          "gateway"
+        ]
+      }
+    },
+    "/api/v1/gateway/devices/{id}": {
+      "get": {
+        "description": "Full state of one device, including its last heartbeat, battery, and SIM list.",
+        "operationId": "GatewayController_getDevice_v1",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "Device id, from GET /gateway/devices.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The device.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeviceResponseDTO"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The device id is not a valid id."
+          },
+          "401": {
+            "description": "Missing, invalid, or revoked API key."
+          },
+          "404": {
+            "description": "No device with that id on your account."
+          }
+        },
+        "security": [
+          {
+            "x-api-key": []
+          }
+        ],
+        "summary": "Get a device",
+        "tags": [
+          "gateway"
+        ]
+      }
+    },
+    "/api/v1/gateway/send-sms": {
+      "post": {
+        "description": "Sends one message to one or more recipients from a phone on your account. deviceId is optional: without it textbee uses your default device, otherwise the enabled device with the most recent heartbeat. Every recipient counts as one message against your plan.",
+        "operationId": "GatewayController_sendSMSDeviceless_v1",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SendSMSRequestDTO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The send was accepted. Use smsBatchId to follow delivery. Acceptance is not delivery: the phone still has to be online.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SendSMSResponseDTO"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "No enabled device to send from, the device is disabled, your email is not verified, or the message could not be pushed to the phone."
+          },
+          "401": {
+            "description": "Missing, invalid, or revoked API key."
+          },
+          "429": {
+            "description": "Your daily, monthly, or per-batch plan limit is used up. The body says which one."
+          }
+        },
+        "security": [
+          {
+            "x-api-key": []
+          }
+        ],
+        "summary": "Send an SMS",
+        "tags": [
+          "gateway"
+        ]
+      }
+    },
+    "/api/v1/gateway/send-bulk-sms": {
+      "post": {
+        "description": "Sends a batch where every entry has its own text and recipients. deviceId is optional and resolves the same way as POST /gateway/send-sms.",
+        "operationId": "GatewayController_sendBulkSMSDeviceless_v1",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SendBulkSMSRequestDTO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The batch was accepted.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SendSMSResponseDTO"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "No enabled device to send from, the device is disabled, your email is not verified, or the batch could not be pushed to the phone."
+          },
+          "401": {
+            "description": "Missing, invalid, or revoked API key."
+          },
+          "429": {
+            "description": "Your daily, monthly, or per-batch plan limit is used up. The body says which one."
+          }
+        },
+        "security": [
+          {
+            "x-api-key": []
+          }
+        ],
+        "summary": "Send several SMS in one call",
+        "tags": [
+          "gateway"
+        ]
+      }
+    },
+    "/api/v1/gateway/messages": {
+      "get": {
+        "description": "Sent and received messages across your whole account, newest first, with delivery status on each. Filter by device, direction, status, text, and time range. Two pagination modes: page numbers for browsing, or cursor for polling. To poll for new messages: request order=asc with a from timestamp, follow nextCursor until hasMore is false, then resume from the last nextCursor on the next poll. Time filters apply to createdAt (when the platform stored the message); for received messages this is upload time, which can lag the receivedAt shown on the message if the device was offline.",
+        "operationId": "GatewayController_getAccountMessages_v1",
+        "parameters": [
+          {
+            "name": "cursor",
+            "required": false,
+            "in": "query",
+            "description": "Opaque position from a previous response nextCursor. Returns the page after that position and switches meta to nextCursor/hasMore without a total count.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 50
+            },
+            "description": "Messages per page. Default 50, maximum 100."
+          },
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 1
+            },
+            "description": "Page to return. Default 1. Mutually exclusive with cursor."
+          },
+          {
+            "name": "order",
+            "required": false,
+            "in": "query",
+            "description": "desc (default) for newest first; asc to walk forward in time when polling.",
+            "schema": {
+              "enum": [
+                "desc",
+                "asc"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "name": "to",
+            "required": false,
+            "in": "query",
+            "description": "Exclusive upper bound on createdAt, same formats as from. Exclusive so consecutive windows never double-count a boundary message.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "from",
+            "required": false,
+            "in": "query",
+            "description": "Inclusive lower bound on createdAt. ISO-8601 with an explicit timezone (2026-08-01T00:00:00Z or +03:00 form), or a date (2026-08-01, read as UTC midnight). A datetime without a timezone is rejected.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "search",
+            "required": false,
+            "in": "query",
+            "description": "Match against the message text and the other party number. Encrypted messages cannot be searched.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "status",
+            "required": false,
+            "in": "query",
+            "description": "Delivery state to return. Combine with direction: direction=sent&status=failed lists sends that failed.",
+            "schema": {
+              "enum": [
+                "pending",
+                "dispatched",
+                "sent",
+                "delivered",
+                "failed",
+                "unknown",
+                "received"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "name": "smsBatchId",
+            "required": false,
+            "in": "query",
+            "description": "Only messages from this batch, using the smsBatchId returned by a send. Combine with status=failed to list the recipients of a batch that failed.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "type",
+            "required": false,
+            "in": "query",
+            "deprecated": true,
+            "description": "Deprecated alias of direction. Still works; prefer direction.",
+            "schema": {
+              "enum": [
+                "all",
+                "sent",
+                "received"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "name": "direction",
+            "required": false,
+            "in": "query",
+            "description": "Direction to return. Default all. Matches the lowercase direction field on each message. Not the same as status: direction=sent means outbound, status=sent means the device dispatched it.",
+            "schema": {
+              "enum": [
+                "all",
+                "sent",
+                "received"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "name": "deviceIds",
+            "required": false,
+            "in": "query",
+            "description": "Comma-separated device ids to include, from GET /gateway/devices. Default: all devices on the account. Messages from deleted devices are never included.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A page of messages.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessageListResponseDTO"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid deviceIds, smsBatchId, direction, status, from, to, order, or cursor value. Unknown filter values fail rather than silently applying no filter."
+          },
+          "401": {
+            "description": "Missing, invalid, or revoked API key."
+          },
+          "404": {
+            "description": "A deviceIds entry or the smsBatchId is not on your account."
+          }
+        },
+        "security": [
+          {
+            "x-api-key": []
+          }
+        ],
+        "summary": "List messages",
+        "tags": [
+          "gateway"
+        ]
+      }
+    },
+    "/api/v1/gateway/devices/{id}/sms/{smsId}": {
+      "get": {
+        "description": "A single sent or received message with its delivery timestamps. Use it to check the outcome of one recipient.",
+        "operationId": "GatewayController_getSMSById_v1",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "Device id, from GET /gateway/devices.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "smsId",
+            "required": true,
+            "in": "path",
+            "description": "Message id, from the message history response.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The message.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SMSResponseDTO"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The device id is not a valid id."
+          },
+          "401": {
+            "description": "Missing, invalid, or revoked API key."
+          },
+          "404": {
+            "description": "No such message on this device."
+          }
+        },
+        "security": [
+          {
+            "x-api-key": []
+          }
+        ],
+        "summary": "Get one message",
+        "tags": [
+          "gateway"
+        ]
+      }
+    },
+    "/api/v1/gateway/devices/{id}/sms-batch/{smsBatchId}": {
+      "get": {
+        "description": "The batch returned by a send, plus one message per recipient. Poll this to see how a send is progressing.",
+        "operationId": "GatewayController_getSmsBatchById_v1",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "Device id, from GET /gateway/devices.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "smsBatchId",
+            "required": true,
+            "in": "path",
+            "description": "Batch id, returned as smsBatchId by the send endpoints.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The batch and its messages.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SMSBatchResponseDTO"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The device id is not a valid id."
+          },
+          "401": {
+            "description": "Missing, invalid, or revoked API key."
+          },
+          "404": {
+            "description": "No such batch on this device."
+          }
+        },
+        "security": [
+          {
+            "x-api-key": []
+          }
+        ],
+        "summary": "Get a send batch",
+        "tags": [
+          "gateway"
+        ]
+      }
+    },
+    "/api/v1/webhooks": {
+      "get": {
+        "description": "Every subscription on your account, deleted ones excluded. Each one says which events it receives and where they are delivered.",
+        "operationId": "WebhookController_getWebhooks_v1",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Your subscriptions.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WebhookListResponseDTO"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing, invalid, or revoked API key."
+          }
+        },
+        "security": [
+          {
+            "x-api-key": []
+          }
+        ],
+        "summary": "List your webhook subscriptions",
+        "tags": [
+          "webhooks"
+        ]
+      },
+      "post": {
+        "description": "textbee POSTs the events you pick to your delivery URL and signs each request with your signing secret, sent as the X-Signature header. Failed deliveries are retried up to 10 times, and a subscription that keeps failing is paused.",
+        "operationId": "WebhookController_createWebhook_v1",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateWebhookDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "The subscription was created.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WebhookResponseDTO"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The delivery URL is unusable, the signing secret is shorter than 20 characters, the event list is empty or unknown, or you already have the maximum number of subscriptions."
+          },
+          "401": {
+            "description": "Missing, invalid, or revoked API key."
+          }
+        },
+        "security": [
+          {
+            "x-api-key": []
+          }
+        ],
+        "summary": "Create a webhook subscription",
+        "tags": [
+          "webhooks"
+        ]
+      }
+    },
+    "/api/v1/webhooks/notifications": {
+      "get": {
+        "description": "Delivery history across your subscriptions, newest first. Use it to see what textbee sent, what your endpoint answered, and whether a retry is pending. History is kept for subscriptions you have since deleted.",
+        "operationId": "WebhookController_getWebhookNotifications_v1",
+        "parameters": [
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "description": "Page to return. Default 1.",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "description": "Records per page. Default 10.",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "status",
+            "required": false,
+            "in": "query",
+            "description": "Only return deliveries in this state.",
+            "schema": {
+              "enum": [
+                "pending",
+                "retrying",
+                "delivered",
+                "failed"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "name": "eventType",
+            "required": false,
+            "in": "query",
+            "description": "Only return deliveries for this event.",
+            "schema": {
+              "enum": [
+                "MESSAGE_RECEIVED",
+                "MESSAGE_SENT",
+                "MESSAGE_DELIVERED",
+                "MESSAGE_FAILED",
+                "UNKNOWN_STATE",
+                "SMS_STATUS_UPDATED"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "name": "deviceId",
+            "required": false,
+            "in": "query",
+            "description": "Only return deliveries for messages from this device.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "start",
+            "required": false,
+            "in": "query",
+            "description": "Start of the time range, ISO 8601. Applied only together with end.",
+            "schema": {
+              "example": "2026-08-01T00:00:00Z",
+              "type": "string"
+            }
+          },
+          {
+            "name": "end",
+            "required": false,
+            "in": "query",
+            "description": "End of the time range, ISO 8601.",
+            "schema": {
+              "example": "2026-08-31T23:59:59Z",
+              "type": "string"
+            }
+          },
+          {
+            "name": "webhookSubscriptionId",
+            "required": false,
+            "in": "query",
+            "description": "Only return deliveries for one subscription.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A page of delivery records.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WebhookNotificationListResponseDTO"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "deviceId or webhookSubscriptionId is not a valid id."
+          },
+          "401": {
+            "description": "Missing, invalid, or revoked API key."
+          },
+          "404": {
+            "description": "No webhook subscription with that id on your account."
+          }
+        },
+        "security": [
+          {
+            "x-api-key": []
+          }
+        ],
+        "summary": "List webhook delivery attempts",
+        "tags": [
+          "webhooks"
+        ]
+      }
+    },
+    "/api/v1/webhooks/{webhookId}": {
+      "get": {
+        "description": "One subscription with its delivery counters.",
+        "operationId": "WebhookController_getWebhook_v1",
+        "parameters": [
+          {
+            "name": "webhookId",
+            "required": true,
+            "in": "path",
+            "description": "Subscription id, from GET /webhooks.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The subscription.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WebhookResponseDTO"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing, invalid, or revoked API key."
+          },
+          "404": {
+            "description": "No webhook subscription with that id on your account."
+          }
+        },
+        "security": [
+          {
+            "x-api-key": []
+          }
+        ],
+        "summary": "Get a webhook subscription",
+        "tags": [
+          "webhooks"
+        ]
+      },
+      "patch": {
+        "description": "Changes only the fields you send. Use isActive to re-enable a subscription textbee paused after repeated failures.",
+        "operationId": "WebhookController_updateWebhook_v1",
+        "parameters": [
+          {
+            "name": "webhookId",
+            "required": true,
+            "in": "path",
+            "description": "Subscription id, from GET /webhooks.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateWebhookDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The updated subscription.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WebhookResponseDTO"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The delivery URL is unusable, the signing secret is shorter than 20 characters, or the event list is empty or unknown."
+          },
+          "401": {
+            "description": "Missing, invalid, or revoked API key."
+          },
+          "404": {
+            "description": "No webhook subscription with that id on your account."
+          }
+        },
+        "security": [
+          {
+            "x-api-key": []
+          }
+        ],
+        "summary": "Update a webhook subscription",
+        "tags": [
+          "webhooks"
+        ]
+      },
+      "delete": {
+        "description": "Stops all deliveries for this subscription. Its delivery history stays readable through GET /webhooks/notifications.",
+        "operationId": "WebhookController_deleteWebhook_v1",
+        "parameters": [
+          {
+            "name": "webhookId",
+            "required": true,
+            "in": "path",
+            "description": "Subscription id, from GET /webhooks.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The subscription was deleted.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WebhookDeletedResponseDTO"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing, invalid, or revoked API key."
+          },
+          "404": {
+            "description": "No webhook subscription with that id on your account."
+          }
+        },
+        "security": [
+          {
+            "x-api-key": []
+          }
+        ],
+        "summary": "Delete a webhook subscription",
+        "tags": [
+          "webhooks"
+        ]
+      }
+    }
+  },
+  "info": {
+    "title": "textbee API",
+    "description": "Send and receive SMS through an Android phone you own. Authenticate every request with an API key from your textbee dashboard, sent as the x-api-key header.",
+    "version": "1.0",
+    "contact": {},
+    "license": {
+      "name": "MIT",
+      "url": "https://github.com/textbee/textbee/blob/main/LICENSE"
+    }
+  },
+  "tags": [
+    {
+      "name": "gateway",
+      "description": "Send SMS and read message history through the Android devices paired with your account."
+    },
+    {
+      "name": "webhooks",
+      "description": "Subscribe to SMS events and inspect the delivery attempts textbee made for them."
+    }
+  ],
+  "servers": [
+    {
+      "url": "https://cloudtextapi.frionode.online"
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "x-api-key": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "x-api-key",
+        "description": "API key from your textbee dashboard, sent on every request."
+      }
+    },
+    "schemas": {
+      "GatewayStatsDTO": {
+        "type": "object",
+        "properties": {
+          "totalSentSMSCount": {
+            "type": "number",
+            "description": "Messages sent across all your devices."
+          },
+          "totalReceivedSMSCount": {
+            "type": "number",
+            "description": "Messages received across all your devices."
+          },
+          "totalDeviceCount": {
+            "type": "number",
+            "description": "Devices on your account."
+          },
+          "totalApiKeyCount": {
+            "type": "number",
+            "description": "API keys on your account."
+          }
+        },
+        "required": [
+          "totalSentSMSCount",
+          "totalReceivedSMSCount",
+          "totalDeviceCount",
+          "totalApiKeyCount"
+        ]
+      },
+      "GatewayStatsResponseDTO": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "description": "Account totals.",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/GatewayStatsDTO"
+              }
+            ]
+          }
+        },
+        "required": [
+          "data"
+        ]
+      },
+      "SimInfoDTO": {
+        "type": "object",
+        "properties": {
+          "subscriptionId": {
+            "type": "number",
+            "description": "Android subscription id of the SIM. Pass it as simSubscriptionId when sending to choose this SIM.",
+            "example": 1
+          },
+          "iccId": {
+            "type": "string",
+            "description": "ICCID of the SIM card."
+          },
+          "cardId": {
+            "type": "number",
+            "description": "Android card id of the SIM slot."
+          },
+          "carrierName": {
+            "type": "string",
+            "description": "Mobile network operator, as reported by Android.",
+            "example": "Safaricom"
+          },
+          "displayName": {
+            "type": "string",
+            "description": "Label the user gave this SIM on the device."
+          },
+          "simSlotIndex": {
+            "type": "number",
+            "description": "Physical SIM slot, starting at 0.",
+            "example": 0
+          },
+          "mcc": {
+            "type": "string",
+            "description": "Mobile country code.",
+            "example": "639"
+          },
+          "mnc": {
+            "type": "string",
+            "description": "Mobile network code.",
+            "example": "02"
+          },
+          "countryIso": {
+            "type": "string",
+            "description": "Two letter country code of the SIM.",
+            "example": "ke"
+          },
+          "subscriptionType": {
+            "type": "string",
+            "description": "Whether the SIM is physical or an eSIM.",
+            "enum": [
+              "PHYSICAL_SIM",
+              "ESIM"
+            ]
+          }
+        },
+        "required": [
+          "subscriptionId"
+        ]
+      },
+      "SimInfoCollectionDTO": {
+        "type": "object",
+        "properties": {
+          "lastUpdated": {
+            "format": "date-time",
+            "type": "string",
+            "description": "When the device last reported its SIM list."
+          },
+          "sims": {
+            "description": "SIMs currently installed in the device.",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SimInfoDTO"
+            }
+          }
+        },
+        "required": [
+          "lastUpdated",
+          "sims"
+        ]
+      },
+      "BatteryInfoDTO": {
+        "type": "object",
+        "properties": {
+          "percentage": {
+            "type": "number",
+            "description": "Battery level, 0 to 100."
+          },
+          "isCharging": {
+            "type": "boolean",
+            "description": "Whether the device was charging at the last heartbeat."
+          },
+          "lastUpdated": {
+            "format": "date-time",
+            "type": "string",
+            "description": "When this reading was taken."
+          }
+        }
+      },
+      "NetworkInfoDTO": {
+        "type": "object",
+        "properties": {
+          "networkType": {
+            "type": "string",
+            "enum": [
+              "wifi",
+              "cellular",
+              "none"
+            ],
+            "description": "Connection the device last reported."
+          },
+          "lastUpdated": {
+            "format": "date-time",
+            "type": "string",
+            "description": "When this reading was taken."
+          }
+        }
+      },
+      "AppVersionInfoDTO": {
+        "type": "object",
+        "properties": {
+          "versionName": {
+            "type": "string",
+            "description": "textbee app version name.",
+            "example": "1.9.0"
+          },
+          "versionCode": {
+            "type": "number",
+            "description": "textbee app version code.",
+            "example": 190
+          },
+          "lastUpdated": {
+            "format": "date-time",
+            "type": "string",
+            "description": "When this reading was taken."
+          }
+        }
+      },
+      "DeviceUptimeInfoDTO": {
+        "type": "object",
+        "properties": {
+          "uptimeMillis": {
+            "type": "number",
+            "description": "Milliseconds since the device booted."
+          },
+          "lastUpdated": {
+            "format": "date-time",
+            "type": "string",
+            "description": "When this reading was taken."
+          }
+        }
+      },
+      "MemoryInfoDTO": {
+        "type": "object",
+        "properties": {
+          "freeBytes": {
+            "type": "number",
+            "description": "Free memory in bytes."
+          },
+          "totalBytes": {
+            "type": "number",
+            "description": "Total memory in bytes."
+          },
+          "maxBytes": {
+            "type": "number",
+            "description": "Maximum memory the app may use, in bytes."
+          },
+          "lastUpdated": {
+            "format": "date-time",
+            "type": "string",
+            "description": "When this reading was taken."
+          }
+        }
+      },
+      "StorageInfoDTO": {
+        "type": "object",
+        "properties": {
+          "availableBytes": {
+            "type": "number",
+            "description": "Free storage in bytes."
+          },
+          "totalBytes": {
+            "type": "number",
+            "description": "Total storage in bytes."
+          },
+          "lastUpdated": {
+            "format": "date-time",
+            "type": "string",
+            "description": "When this reading was taken."
+          }
+        }
+      },
+      "DeviceSystemInfoDTO": {
+        "type": "object",
+        "properties": {
+          "timezone": {
+            "type": "string",
+            "description": "Device timezone.",
+            "example": "Africa/Addis_Ababa"
+          },
+          "locale": {
+            "type": "string",
+            "description": "Device locale.",
+            "example": "en_US"
+          },
+          "lastUpdated": {
+            "format": "date-time",
+            "type": "string",
+            "description": "When this reading was taken."
+          }
+        }
+      },
+      "DeviceDTO": {
+        "type": "object",
+        "properties": {
+          "_id": {
+            "type": "string",
+            "description": "Device id. Pass it as deviceId when sending."
+          },
+          "user": {
+            "type": "string",
+            "description": "Owner account id."
+          },
+          "enabled": {
+            "type": "boolean",
+            "description": "Whether the device may send and receive SMS. Sending to a disabled device fails."
+          },
+          "isDefault": {
+            "type": "boolean",
+            "description": "Whether sends without a deviceId go out from this device."
+          },
+          "brand": {
+            "type": "string",
+            "description": "Device brand.",
+            "example": "google"
+          },
+          "manufacturer": {
+            "type": "string",
+            "description": "Device manufacturer.",
+            "example": "Google"
+          },
+          "model": {
+            "type": "string",
+            "description": "Device model.",
+            "example": "Pixel 7"
+          },
+          "name": {
+            "type": "string",
+            "description": "Your own label for the device.",
+            "example": "Office phone"
+          },
+          "buildId": {
+            "type": "string",
+            "description": "Android build id."
+          },
+          "os": {
+            "type": "string",
+            "description": "Operating system name.",
+            "example": "Android"
+          },
+          "osVersion": {
+            "type": "string",
+            "description": "Android release version.",
+            "example": "16"
+          },
+          "osApiLevel": {
+            "type": "number",
+            "description": "Android SDK level.",
+            "example": 36
+          },
+          "osVersionSource": {
+            "type": "string",
+            "enum": [
+              "reported",
+              "fingerprint",
+              "buildId"
+            ],
+            "description": "How osVersion was determined."
+          },
+          "osBuildFingerprint": {
+            "type": "string",
+            "description": "Android build fingerprint."
+          },
+          "appVersionName": {
+            "type": "string",
+            "description": "textbee app version name.",
+            "example": "1.9.0"
+          },
+          "appVersionCode": {
+            "type": "number",
+            "description": "textbee app version code.",
+            "example": 190
+          },
+          "sentSMSCount": {
+            "type": "number",
+            "description": "Messages this device has sent."
+          },
+          "receivedSMSCount": {
+            "type": "number",
+            "description": "Messages this device has received."
+          },
+          "heartbeatEnabled": {
+            "type": "boolean",
+            "description": "Whether the device reports heartbeats."
+          },
+          "heartbeatIntervalMinutes": {
+            "type": "number",
+            "description": "Minutes between heartbeats.",
+            "example": 30
+          },
+          "receiveSMSEnabled": {
+            "type": "boolean",
+            "description": "Whether incoming messages are forwarded to textbee. Required for received message history and webhooks."
+          },
+          "smsSendDelaySeconds": {
+            "type": "number",
+            "description": "Seconds the device waits between messages in a batch."
+          },
+          "lastHeartbeat": {
+            "format": "date-time",
+            "type": "string",
+            "description": "Last heartbeat. A device silent for long is likely offline and sends will queue."
+          },
+          "batteryInfo": {
+            "description": "Battery level at the last heartbeat.",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/BatteryInfoDTO"
+              }
+            ]
+          },
+          "networkInfo": {
+            "description": "Connection the device was on at the last heartbeat.",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/NetworkInfoDTO"
+              }
+            ]
+          },
+          "appVersionInfo": {
+            "description": "textbee app version running on the device.",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/AppVersionInfoDTO"
+              }
+            ]
+          },
+          "deviceUptimeInfo": {
+            "description": "How long the device has been up.",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/DeviceUptimeInfoDTO"
+              }
+            ]
+          },
+          "memoryInfo": {
+            "description": "Memory reported at the last heartbeat.",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/MemoryInfoDTO"
+              }
+            ]
+          },
+          "storageInfo": {
+            "description": "Storage reported at the last heartbeat.",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/StorageInfoDTO"
+              }
+            ]
+          },
+          "systemInfo": {
+            "description": "Timezone and locale of the device.",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/DeviceSystemInfoDTO"
+              }
+            ]
+          },
+          "simInfo": {
+            "description": "SIMs installed in the device.",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/SimInfoCollectionDTO"
+              }
+            ]
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string",
+            "description": "When the device was registered."
+          },
+          "updatedAt": {
+            "format": "date-time",
+            "type": "string",
+            "description": "When the device was last updated."
+          }
+        },
+        "required": [
+          "_id",
+          "user",
+          "enabled",
+          "isDefault",
+          "brand",
+          "manufacturer",
+          "model",
+          "buildId",
+          "os",
+          "osVersion",
+          "sentSMSCount",
+          "receivedSMSCount",
+          "heartbeatEnabled",
+          "heartbeatIntervalMinutes",
+          "receiveSMSEnabled",
+          "smsSendDelaySeconds",
+          "createdAt",
+          "updatedAt"
+        ]
+      },
+      "DeviceResponseDTO": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "description": "The device.",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/DeviceDTO"
+              }
+            ]
+          }
+        },
+        "required": [
+          "data"
+        ]
+      },
+      "DeviceListResponseDTO": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "description": "Your devices.",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DeviceDTO"
+            }
+          }
+        },
+        "required": [
+          "data"
+        ]
+      },
+      "SendSMSRequestDTO": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "description": "Text of the message. Long messages are split by the carrier.",
+            "example": "Your appointment is confirmed for Tuesday at 10am."
+          },
+          "recipients": {
+            "description": "Phone numbers to send to, in international format. Each recipient is billed as one message.",
+            "example": [
+              "+12025550123",
+              "+12025550124"
+            ],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "simSubscriptionId": {
+            "type": "number",
+            "description": "SIM to send from, as subscriptionId from the device simInfo. Defaults to the device default SIM.",
+            "example": 1
+          },
+          "scheduledAt": {
+            "type": "string",
+            "description": "ISO 8601 time to send the message. Must be in the future. Omit to send now.",
+            "example": "2024-01-15T10:30:00Z"
+          },
+          "smsBody": {
+            "type": "string",
+            "deprecated": true,
+            "description": "Legacy alias for message. Used only when message is absent."
+          },
+          "receivers": {
+            "deprecated": true,
+            "description": "Legacy alias for recipients. Used only when recipients is absent.",
+            "example": [
+              "+12025550123",
+              "+12025550124"
+            ],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "deviceId": {
+            "type": "string",
+            "description": "Device to send from. When omitted, uses your default device, or the enabled device with the most recent heartbeat."
+          }
+        },
+        "required": [
+          "message",
+          "recipients"
+        ]
+      },
+      "SendSMSResultDTO": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "description": "Whether the batch was accepted. Queued sends only."
+          },
+          "message": {
+            "type": "string",
+            "description": "Human readable outcome. Queued sends only.",
+            "example": "SMS added to queue for processing"
+          },
+          "smsBatchId": {
+            "type": "string",
+            "description": "Batch id. Pass it to GET /gateway/devices/{id}/sms-batch/{smsBatchId} to follow delivery. Queued sends only."
+          },
+          "recipientCount": {
+            "type": "number",
+            "description": "Number of recipients in the batch. Queued sends only."
+          },
+          "estimatedCompletionAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Projected time the device finishes sending, based on the recipient count and the device send delay setting. Present only when the batch is large enough to be released in waves. The device must stay online for the estimate to hold.",
+            "example": "2026-08-22T14:05:00.000Z"
+          },
+          "successCount": {
+            "type": "number",
+            "description": "Messages pushed to the device. Returned instead of the queue fields when the instance dispatches immediately."
+          },
+          "failureCount": {
+            "type": "number",
+            "description": "Messages that could not be pushed to the device."
+          }
+        }
+      },
+      "SendSMSResponseDTO": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "description": "Outcome of the send.",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/SendSMSResultDTO"
+              }
+            ]
+          }
+        },
+        "required": [
+          "data"
+        ]
+      },
+      "SMSData": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "description": "Text of the message. Long messages are split by the carrier.",
+            "example": "Your appointment is confirmed for Tuesday at 10am."
+          },
+          "recipients": {
+            "description": "Phone numbers to send to, in international format. Each recipient is billed as one message.",
+            "example": [
+              "+12025550123",
+              "+12025550124"
+            ],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "simSubscriptionId": {
+            "type": "number",
+            "description": "SIM to send from, as subscriptionId from the device simInfo. Defaults to the device default SIM.",
+            "example": 1
+          },
+          "scheduledAt": {
+            "type": "string",
+            "description": "ISO 8601 time to send the message. Must be in the future. Omit to send now.",
+            "example": "2024-01-15T10:30:00Z"
+          },
+          "smsBody": {
+            "type": "string",
+            "deprecated": true,
+            "description": "Legacy alias for message. Used only when message is absent."
+          },
+          "receivers": {
+            "deprecated": true,
+            "description": "Legacy alias for recipients. Used only when recipients is absent.",
+            "example": [
+              "+12025550123",
+              "+12025550124"
+            ],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "message",
+          "recipients"
+        ]
+      },
+      "SendBulkSMSRequestDTO": {
+        "type": "object",
+        "properties": {
+          "messageTemplate": {
+            "type": "string",
+            "description": "Optional label for the batch. Each entry in messages carries its own text."
+          },
+          "messages": {
+            "description": "Messages to send. Every message can target different recipients and use a different SIM.",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SMSData"
+            }
+          },
+          "deviceId": {
+            "type": "string",
+            "description": "Device to send from. When omitted, uses your default device, or the enabled device with the most recent heartbeat."
+          }
+        },
+        "required": [
+          "messages"
+        ]
+      },
+      "MessagePageMetaDTO": {
+        "type": "object",
+        "properties": {
+          "page": {
+            "type": "integer",
+            "description": "Current page number"
+          },
+          "limit": {
+            "type": "integer",
+            "description": "Number of items per page"
+          },
+          "total": {
+            "type": "integer",
+            "description": "Total number of items"
+          },
+          "totalPages": {
+            "type": "integer",
+            "description": "Total number of pages"
+          },
+          "nextCursor": {
+            "type": "string",
+            "nullable": true,
+            "description": "Opaque cursor positioned after the last message on this page. Pass it back as the cursor query parameter. Null on the final page."
+          },
+          "hasMore": {
+            "type": "boolean",
+            "description": "Whether more messages exist beyond this page."
+          }
+        },
+        "required": [
+          "page",
+          "limit",
+          "total",
+          "totalPages",
+          "nextCursor",
+          "hasMore"
+        ]
+      },
+      "CursorPaginationMetaDTO": {
+        "type": "object",
+        "properties": {
+          "limit": {
+            "type": "integer",
+            "description": "Number of items per page."
+          },
+          "nextCursor": {
+            "type": "string",
+            "nullable": true,
+            "description": "Opaque cursor for the next page. Pass it back as the cursor query parameter. Null when there is nothing further."
+          },
+          "hasMore": {
+            "type": "boolean",
+            "description": "Whether more messages exist beyond this page."
+          }
+        },
+        "required": [
+          "limit",
+          "nextCursor",
+          "hasMore"
+        ]
+      },
+      "MessageDeviceDTO": {
+        "type": "object",
+        "properties": {
+          "_id": {
+            "type": "string",
+            "description": "Device id."
+          },
+          "enabled": {
+            "type": "boolean",
+            "description": "Whether the device may send and receive SMS."
+          },
+          "brand": {
+            "type": "string",
+            "description": "Device brand.",
+            "example": "google"
+          },
+          "model": {
+            "type": "string",
+            "description": "Device model.",
+            "example": "Pixel 7"
+          },
+          "buildId": {
+            "type": "string",
+            "description": "Android build id."
+          }
+        },
+        "required": [
+          "_id",
+          "enabled",
+          "brand",
+          "model",
+          "buildId"
+        ]
+      },
+      "MessageDTO": {
+        "type": "object",
+        "properties": {
+          "_id": {
+            "type": "string",
+            "description": "Message id."
+          },
+          "message": {
+            "type": "string",
+            "description": "Message text. Empty when the message is end to end encrypted."
+          },
+          "device": {
+            "description": "Device that sent or received the message.",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/MessageDeviceDTO"
+              }
+            ]
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "SENT",
+              "RECEIVED"
+            ],
+            "deprecated": true,
+            "description": "Direction of the message, uppercase. Deprecated: read the lowercase direction field instead, whose values match the direction query filter."
+          },
+          "status": {
+            "type": "string",
+            "nullable": true,
+            "enum": [
+              "pending",
+              "dispatched",
+              "sent",
+              "delivered",
+              "failed",
+              "unknown",
+              "received"
+            ],
+            "description": "Delivery state, lowercase. Incoming messages are always received. Outgoing messages move from pending to sent, then to delivered when the carrier confirms. Absent on messages stored before status tracking, so treat a missing value as unknown."
+          },
+          "sender": {
+            "type": "string",
+            "description": "Sender number. Set on received messages."
+          },
+          "recipient": {
+            "type": "string",
+            "description": "Destination number. Set on sent messages."
+          },
+          "smsBatch": {
+            "type": "string",
+            "description": "Id of the batch this message was sent in."
+          },
+          "encrypted": {
+            "type": "boolean",
+            "description": "Whether the body is end to end encrypted. Encrypted bodies can only be read by your own client."
+          },
+          "simSubscriptionId": {
+            "type": "number",
+            "description": "SIM the message was sent from."
+          },
+          "receivedAt": {
+            "format": "date-time",
+            "type": "string",
+            "description": "When the message was received. Received messages only."
+          },
+          "requestedAt": {
+            "format": "date-time",
+            "type": "string",
+            "description": "When the send was requested. Sent messages only."
+          },
+          "dispatchDueAt": {
+            "format": "date-time",
+            "type": "string",
+            "description": "When the queue is due to hand the message to the push service. Set for queued messages that wait server-side before dispatch: scheduled sends, and large sends, which are released in waves paced to the device send delay so the phone is never asked to hold more than it can send. Absent for immediate sends."
+          },
+          "dispatchedAt": {
+            "format": "date-time",
+            "type": "string",
+            "description": "When the push service accepted the message for delivery to the device. Does not mean the device has received it; sentAt is the first device-confirmed timestamp."
+          },
+          "sentAt": {
+            "format": "date-time",
+            "type": "string",
+            "description": "When the device reported the message as sent."
+          },
+          "deliveredAt": {
+            "format": "date-time",
+            "type": "string",
+            "description": "When the carrier confirmed delivery."
+          },
+          "failedAt": {
+            "format": "date-time",
+            "type": "string",
+            "description": "When the message failed."
+          },
+          "errorCode": {
+            "type": "string",
+            "description": "Failure code reported by the device."
+          },
+          "errorMessage": {
+            "type": "string",
+            "description": "Failure reason reported by the device."
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string",
+            "description": "When the record was created."
+          },
+          "updatedAt": {
+            "format": "date-time",
+            "type": "string",
+            "description": "When the record was last updated."
+          },
+          "direction": {
+            "type": "string",
+            "enum": [
+              "sent",
+              "received"
+            ],
+            "description": "Direction of the message, lowercase. Values match the direction query filter, so a response value can be passed straight back as a filter. Not the same thing as status: direction=sent means outbound, status=sent means the device dispatched it."
+          },
+          "channel": {
+            "type": "string",
+            "enum": [
+              "sms"
+            ],
+            "description": "Message channel. Currently always sms; mms will appear here when supported. Absent means sms."
+          }
+        },
+        "required": [
+          "_id",
+          "device",
+          "type",
+          "createdAt",
+          "updatedAt",
+          "direction"
+        ]
+      },
+      "MessageListResponseDTO": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "description": "Messages, newest first unless order=asc.",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MessageDTO"
+            }
+          },
+          "meta": {
+            "description": "Pagination metadata. Page mode (no cursor) returns page, limit, total, totalPages plus nextCursor and hasMore; cursor mode returns limit, nextCursor, and hasMore only, skipping the expensive total count. anyOf rather than oneOf: a page-mode object also satisfies the cursor-mode shape, and oneOf would make strict validators reject it.",
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/MessagePageMetaDTO"
+              },
+              {
+                "$ref": "#/components/schemas/CursorPaginationMetaDTO"
+              }
+            ]
+          }
+        },
+        "required": [
+          "data",
+          "meta"
+        ]
+      },
+      "RetrieveSMSDTO": {
+        "type": "object",
+        "properties": {
+          "_id": {
+            "type": "string",
+            "description": "Message id."
+          },
+          "message": {
+            "type": "string",
+            "description": "Message text. Empty when the message is end to end encrypted."
+          },
+          "device": {
+            "description": "Device that sent or received the message.",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/MessageDeviceDTO"
+              }
+            ]
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "SENT",
+              "RECEIVED"
+            ],
+            "deprecated": true,
+            "description": "Direction of the message, uppercase. Deprecated: read the lowercase direction field instead, whose values match the direction query filter."
+          },
+          "status": {
+            "type": "string",
+            "nullable": true,
+            "enum": [
+              "pending",
+              "dispatched",
+              "sent",
+              "delivered",
+              "failed",
+              "unknown",
+              "received"
+            ],
+            "description": "Delivery state, lowercase. Incoming messages are always received. Outgoing messages move from pending to sent, then to delivered when the carrier confirms. Absent on messages stored before status tracking, so treat a missing value as unknown."
+          },
+          "sender": {
+            "type": "string",
+            "description": "Sender number. Set on received messages."
+          },
+          "recipient": {
+            "type": "string",
+            "description": "Destination number. Set on sent messages."
+          },
+          "smsBatch": {
+            "type": "string",
+            "description": "Id of the batch this message was sent in."
+          },
+          "encrypted": {
+            "type": "boolean",
+            "description": "Whether the body is end to end encrypted. Encrypted bodies can only be read by your own client."
+          },
+          "simSubscriptionId": {
+            "type": "number",
+            "description": "SIM the message was sent from."
+          },
+          "receivedAt": {
+            "format": "date-time",
+            "type": "string",
+            "description": "When the message was received. Received messages only."
+          },
+          "requestedAt": {
+            "format": "date-time",
+            "type": "string",
+            "description": "When the send was requested. Sent messages only."
+          },
+          "dispatchDueAt": {
+            "format": "date-time",
+            "type": "string",
+            "description": "When the queue is due to hand the message to the push service. Set for queued messages that wait server-side before dispatch: scheduled sends, and large sends, which are released in waves paced to the device send delay so the phone is never asked to hold more than it can send. Absent for immediate sends."
+          },
+          "dispatchedAt": {
+            "format": "date-time",
+            "type": "string",
+            "description": "When the push service accepted the message for delivery to the device. Does not mean the device has received it; sentAt is the first device-confirmed timestamp."
+          },
+          "sentAt": {
+            "format": "date-time",
+            "type": "string",
+            "description": "When the device reported the message as sent."
+          },
+          "deliveredAt": {
+            "format": "date-time",
+            "type": "string",
+            "description": "When the carrier confirmed delivery."
+          },
+          "failedAt": {
+            "format": "date-time",
+            "type": "string",
+            "description": "When the message failed."
+          },
+          "errorCode": {
+            "type": "string",
+            "description": "Failure code reported by the device."
+          },
+          "errorMessage": {
+            "type": "string",
+            "description": "Failure reason reported by the device."
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string",
+            "description": "When the record was created."
+          },
+          "updatedAt": {
+            "format": "date-time",
+            "type": "string",
+            "description": "When the record was last updated."
+          }
+        },
+        "required": [
+          "_id",
+          "device",
+          "type",
+          "createdAt",
+          "updatedAt"
+        ]
+      },
+      "PaginationMetaDTO": {
+        "type": "object",
+        "properties": {
+          "page": {
+            "type": "integer",
+            "description": "Current page number"
+          },
+          "limit": {
+            "type": "integer",
+            "description": "Number of items per page"
+          },
+          "total": {
+            "type": "integer",
+            "description": "Total number of items"
+          },
+          "totalPages": {
+            "type": "integer",
+            "description": "Total number of pages"
+          }
+        },
+        "required": [
+          "page",
+          "limit",
+          "total",
+          "totalPages"
+        ]
+      },
+      "SMSResponseDTO": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "description": "The message.",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/RetrieveSMSDTO"
+              }
+            ]
+          }
+        },
+        "required": [
+          "data"
+        ]
+      },
+      "SMSBatchDTO": {
+        "type": "object",
+        "properties": {
+          "_id": {
+            "type": "string",
+            "description": "Batch id."
+          },
+          "user": {
+            "type": "string",
+            "description": "Owner account id."
+          },
+          "message": {
+            "type": "string",
+            "description": "Message text sent to every recipient in the batch."
+          },
+          "encrypted": {
+            "type": "boolean",
+            "description": "Whether the body is end to end encrypted."
+          },
+          "recipientCount": {
+            "type": "number",
+            "description": "Recipients in the batch."
+          },
+          "recipientPreview": {
+            "type": "string",
+            "description": "Short preview of the recipient list.",
+            "example": "+12025550123 and 3 others"
+          },
+          "successCount": {
+            "type": "number",
+            "description": "Messages sent so far."
+          },
+          "failureCount": {
+            "type": "number",
+            "description": "Messages that failed."
+          },
+          "status": {
+            "type": "string",
+            "nullable": true,
+            "enum": [
+              "pending",
+              "processing",
+              "completed",
+              "partial_success",
+              "failed",
+              "unknown",
+              "sent",
+              "delivered"
+            ],
+            "description": "Progress of the batch as a whole, lowercase. Absent on batches stored before status tracking. sent and delivered appear on older batches that mirrored the per-message state."
+          },
+          "error": {
+            "type": "string",
+            "description": "Failure reason when the batch failed."
+          },
+          "completedAt": {
+            "format": "date-time",
+            "type": "string",
+            "description": "When the batch finished."
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string",
+            "description": "When the batch was created."
+          },
+          "updatedAt": {
+            "format": "date-time",
+            "type": "string",
+            "description": "When the batch was last updated."
+          }
+        },
+        "required": [
+          "_id",
+          "user",
+          "recipientCount",
+          "successCount",
+          "failureCount",
+          "createdAt",
+          "updatedAt"
+        ]
+      },
+      "SMSBatchResultDTO": {
+        "type": "object",
+        "properties": {
+          "batch": {
+            "description": "The batch itself.",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/SMSBatchDTO"
+              }
+            ]
+          },
+          "messages": {
+            "description": "Every message in the batch, one per recipient.",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RetrieveSMSDTO"
+            }
+          }
+        },
+        "required": [
+          "batch",
+          "messages"
+        ]
+      },
+      "SMSBatchResponseDTO": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "description": "The batch and the messages in it.",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/SMSBatchResultDTO"
+              }
+            ]
+          }
+        },
+        "required": [
+          "data"
+        ]
+      },
+      "WebhookNoteDTO": {
+        "type": "object",
+        "properties": {
+          "at": {
+            "format": "date-time",
+            "type": "string",
+            "description": "When the note was added."
+          },
+          "text": {
+            "type": "string",
+            "description": "What textbee recorded, for example why the subscription was paused."
+          }
+        },
+        "required": [
+          "at",
+          "text"
+        ]
+      },
+      "WebhookSubscriptionDTO": {
+        "type": "object",
+        "properties": {
+          "_id": {
+            "type": "string",
+            "description": "Subscription id."
+          },
+          "user": {
+            "type": "string",
+            "description": "Owner account id."
+          },
+          "name": {
+            "type": "string",
+            "description": "Label shown in the dashboard."
+          },
+          "isActive": {
+            "type": "boolean",
+            "description": "Whether deliveries are attempted. textbee pauses subscriptions that keep failing."
+          },
+          "events": {
+            "type": "array",
+            "description": "Events this subscription receives.",
+            "items": {
+              "type": "string",
+              "enum": [
+                "MESSAGE_RECEIVED",
+                "MESSAGE_SENT",
+                "MESSAGE_DELIVERED",
+                "MESSAGE_FAILED",
+                "UNKNOWN_STATE",
+                "SMS_STATUS_UPDATED"
+              ]
+            }
+          },
+          "deliveryUrl": {
+            "type": "string",
+            "description": "URL events are POSTed to."
+          },
+          "signingSecret": {
+            "type": "string",
+            "description": "Secret used to sign deliveries."
+          },
+          "successfulDeliveryCount": {
+            "type": "number",
+            "description": "Deliveries that succeeded."
+          },
+          "deliveryFailureCount": {
+            "type": "number",
+            "description": "Deliveries that failed."
+          },
+          "deliveryAttemptCount": {
+            "type": "number",
+            "description": "Delivery attempts made, retries included."
+          },
+          "lastDeliveryAttemptAt": {
+            "format": "date-time",
+            "type": "string",
+            "description": "Last time a delivery was attempted."
+          },
+          "lastDeliverySuccessAt": {
+            "format": "date-time",
+            "type": "string",
+            "description": "Last time a delivery succeeded."
+          },
+          "lastDeliveryFailureAt": {
+            "format": "date-time",
+            "type": "string",
+            "description": "Last time a delivery failed."
+          },
+          "notes": {
+            "description": "Notes textbee added, such as an auto-pause reason.",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/WebhookNoteDTO"
+            }
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string",
+            "description": "When the subscription was created."
+          },
+          "updatedAt": {
+            "format": "date-time",
+            "type": "string",
+            "description": "When it was last updated."
+          }
+        },
+        "required": [
+          "_id",
+          "user",
+          "isActive",
+          "events",
+          "deliveryUrl",
+          "signingSecret",
+          "successfulDeliveryCount",
+          "deliveryFailureCount",
+          "deliveryAttemptCount",
+          "createdAt",
+          "updatedAt"
+        ]
+      },
+      "WebhookListResponseDTO": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "description": "Your webhook subscriptions. Deleted ones are not returned.",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/WebhookSubscriptionDTO"
+            }
+          }
+        },
+        "required": [
+          "data"
+        ]
+      },
+      "WebhookNotificationDTO": {
+        "type": "object",
+        "properties": {
+          "_id": {
+            "type": "string",
+            "description": "Delivery record id."
+          },
+          "webhookSubscription": {
+            "type": "string",
+            "description": "Subscription this belongs to."
+          },
+          "event": {
+            "type": "string",
+            "enum": [
+              "MESSAGE_RECEIVED",
+              "MESSAGE_SENT",
+              "MESSAGE_DELIVERED",
+              "MESSAGE_FAILED",
+              "UNKNOWN_STATE",
+              "SMS_STATUS_UPDATED"
+            ],
+            "description": "Event that was delivered."
+          },
+          "payload": {
+            "type": "object",
+            "description": "Exact JSON body textbee POSTed to your endpoint."
+          },
+          "computedStatus": {
+            "type": "string",
+            "enum": [
+              "pending",
+              "retrying",
+              "delivered",
+              "failed"
+            ],
+            "description": "Delivery state. Retrying means textbee will try again, failed means it gave up after 10 attempts."
+          },
+          "deliveryUrl": {
+            "type": "string",
+            "description": "URL the delivery was sent to when it was attempted."
+          },
+          "deliveryAttemptCount": {
+            "type": "number",
+            "description": "Attempts made for this event."
+          },
+          "deliveredAt": {
+            "format": "date-time",
+            "type": "string",
+            "description": "When your endpoint accepted the delivery."
+          },
+          "lastDeliveryAttemptAt": {
+            "format": "date-time",
+            "type": "string",
+            "description": "When the last attempt was made."
+          },
+          "nextDeliveryAttemptAt": {
+            "format": "date-time",
+            "type": "string",
+            "description": "When the next retry is due."
+          },
+          "deliveryAttemptAbortedAt": {
+            "format": "date-time",
+            "type": "string",
+            "description": "When textbee stopped retrying."
+          },
+          "errorType": {
+            "type": "string",
+            "enum": [
+              "retryable",
+              "non-retryable"
+            ],
+            "description": "Whether the failure is worth retrying."
+          },
+          "httpStatusCode": {
+            "type": "number",
+            "description": "Status code your endpoint returned on the last attempt."
+          },
+          "responseBody": {
+            "type": "string",
+            "description": "First 1000 characters of your endpoint response."
+          },
+          "idempotencyKey": {
+            "type": "string",
+            "description": "Idempotency key sent with the delivery."
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string",
+            "description": "When the event was recorded."
+          }
+        },
+        "required": [
+          "_id",
+          "webhookSubscription",
+          "event",
+          "payload",
+          "computedStatus",
+          "deliveryAttemptCount",
+          "createdAt"
+        ]
+      },
+      "WebhookNotificationPageDTO": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "description": "Delivery records, newest first.",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/WebhookNotificationDTO"
+            }
+          },
+          "meta": {
+            "description": "Pagination info.",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PaginationMetaDTO"
+              }
+            ]
+          }
+        },
+        "required": [
+          "data",
+          "meta"
+        ]
+      },
+      "WebhookNotificationListResponseDTO": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "description": "Delivery records with pagination.",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/WebhookNotificationPageDTO"
+              }
+            ]
+          }
+        },
+        "required": [
+          "data"
+        ]
+      },
+      "WebhookResponseDTO": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "description": "The subscription.",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/WebhookSubscriptionDTO"
+              }
+            ]
+          }
+        },
+        "required": [
+          "data"
+        ]
+      },
+      "CreateWebhookDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Label shown in the dashboard. Up to 64 characters.",
+            "example": "Order notifications"
+          },
+          "deliveryUrl": {
+            "type": "string",
+            "description": "URL textbee POSTs events to. Must be http or https and publicly reachable. Private and loopback hosts are rejected.",
+            "example": "https://example.com/textbee/webhook"
+          },
+          "signingSecret": {
+            "type": "string",
+            "description": "Shared secret, at least 20 characters. textbee signs every delivery with it and sends the signature in the X-Signature header, so your endpoint can verify the request really came from textbee."
+          },
+          "events": {
+            "type": "array",
+            "description": "Events to deliver. At least one is required.",
+            "example": [
+              "MESSAGE_RECEIVED"
+            ],
+            "items": {
+              "type": "string",
+              "enum": [
+                "MESSAGE_RECEIVED",
+                "MESSAGE_SENT",
+                "MESSAGE_DELIVERED",
+                "MESSAGE_FAILED",
+                "UNKNOWN_STATE",
+                "SMS_STATUS_UPDATED"
+              ]
+            }
+          }
+        },
+        "required": [
+          "deliveryUrl",
+          "signingSecret",
+          "events"
+        ]
+      },
+      "UpdateWebhookDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Label shown in the dashboard. Up to 64 characters.",
+            "example": "Order notifications"
+          },
+          "isActive": {
+            "type": "boolean",
+            "description": "Whether deliveries are attempted. Set it to true to re-enable a subscription textbee paused after repeated failures."
+          },
+          "deliveryUrl": {
+            "type": "string",
+            "description": "New delivery URL. Same rules as on create: http or https, no private or loopback hosts.",
+            "example": "https://example.com/textbee/webhook"
+          },
+          "signingSecret": {
+            "type": "string",
+            "description": "New signing secret, at least 20 characters."
+          },
+          "events": {
+            "type": "array",
+            "description": "Replacement event list. Cannot be empty.",
+            "example": [
+              "MESSAGE_RECEIVED",
+              "MESSAGE_DELIVERED"
+            ],
+            "items": {
+              "type": "string",
+              "enum": [
+                "MESSAGE_RECEIVED",
+                "MESSAGE_SENT",
+                "MESSAGE_DELIVERED",
+                "MESSAGE_FAILED",
+                "UNKNOWN_STATE",
+                "SMS_STATUS_UPDATED"
+              ]
+            }
+          }
+        }
+      },
+      "WebhookDeletedResultDTO": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "description": "Whether the delete succeeded."
+          }
+        },
+        "required": [
+          "success"
+        ]
+      },
+      "WebhookDeletedResponseDTO": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "description": "Outcome of the delete.",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/WebhookDeletedResultDTO"
+              }
+            ]
+          }
+        },
+        "required": [
+          "data"
+        ]
+      }
+    }
+  }
+}

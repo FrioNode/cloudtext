@@ -1,0 +1,302 @@
+import { ApiProperty } from '@nestjs/swagger'
+
+export class RegisterInputDTO {
+  @ApiProperty({
+    type: String,
+    required: true,
+    description: 'Full name shown in the dashboard.',
+    example: 'Ada Lovelace',
+  })
+  name: string
+
+  @ApiProperty({
+    type: String,
+    required: true,
+    description: 'Email address. Must not already have an account.',
+    example: 'ada@example.com',
+  })
+  email: string
+
+  @ApiProperty({
+    type: String,
+    required: false,
+    description: 'Phone number, for account recovery.',
+  })
+  phone?: string
+
+  @ApiProperty({
+    type: String,
+    required: true,
+    description: 'Password for the new account.',
+  })
+  password: string
+
+  @ApiProperty({
+    type: String,
+    required: true,
+    description: 'Cloudflare Turnstile token from the signup form.',
+  })
+  turnstileToken: string
+}
+
+export class LoginInputDTO {
+  @ApiProperty({
+    type: String,
+    required: true,
+    description: 'Email address on the account.',
+    example: 'ada@example.com',
+  })
+  email: string
+
+  @ApiProperty({ type: String, required: true, description: 'Password.' })
+  password: string
+
+  @ApiProperty({
+    type: String,
+    required: true,
+    description: 'Cloudflare Turnstile token from the login form.',
+  })
+  turnstileToken: string
+}
+
+export class GoogleLoginInputDTO {
+  @ApiProperty({
+    type: String,
+    required: true,
+    description:
+      'Google ID token from the browser sign-in flow. It must be issued for the textbee client and carry a verified email.',
+  })
+  idToken: string
+}
+
+export class RequestResetPasswordInputDTO {
+  @ApiProperty({
+    type: String,
+    required: true,
+    description: 'Email address to send the reset code to.',
+  })
+  email: string
+
+  @ApiProperty({
+    type: String,
+    required: true,
+    description: 'Cloudflare Turnstile token from the form.',
+  })
+  turnstileToken: string
+}
+
+export class ResetPasswordInputDTO {
+  @ApiProperty({
+    type: String,
+    required: true,
+    description: 'Email address on the account.',
+  })
+  email: string
+
+  @ApiProperty({
+    type: String,
+    required: true,
+    description: 'One time code from the reset email.',
+  })
+  otp: string
+
+  @ApiProperty({ type: String, required: true, description: 'New password.' })
+  newPassword: string
+}
+
+export class UpdateProfileInputDTO {
+  @ApiProperty({ type: String, required: false, description: 'New full name.' })
+  name: string
+
+  @ApiProperty({
+    type: String,
+    required: false,
+    description: 'New phone number.',
+  })
+  phone: string
+}
+
+export class ChangePasswordInputDTO {
+  @ApiProperty({ type: String, required: true, description: 'Current password.' })
+  oldPassword: string
+
+  @ApiProperty({ type: String, required: true, description: 'New password.' })
+  newPassword: string
+}
+
+export class RenameApiKeyInputDTO {
+  @ApiProperty({
+    type: String,
+    required: true,
+    description: 'New label for the key.',
+    example: 'n8n production',
+  })
+  name: string
+}
+
+export class VerifyEmailInputDTO {
+  @ApiProperty({
+    type: String,
+    required: true,
+    description: 'Id of the account to verify.',
+  })
+  userId: string
+
+  @ApiProperty({
+    type: String,
+    required: true,
+    description: 'Code from the verification email.',
+  })
+  verificationCode: string
+}
+
+export class UpdateOnboardingDTO {
+  @ApiProperty({
+    type: String,
+    required: false,
+    description: 'Step the user is on now.',
+  })
+  currentStepId?: string
+
+  @ApiProperty({
+    type: String,
+    required: false,
+    description: 'Step to skip. Only allowed for optional steps.',
+  })
+  skipStepId?: string
+
+  @ApiProperty({
+    type: Boolean,
+    required: false,
+    description: 'When true, marks onboarding finished.',
+  })
+  complete?: boolean
+}
+
+export class UserDTO {
+  @ApiProperty({ type: String, description: 'Account id.' })
+  _id: string
+
+  @ApiProperty({ type: String, required: false, description: 'Full name.' })
+  name?: string
+
+  @ApiProperty({ type: String, description: 'Email address.' })
+  email: string
+
+  @ApiProperty({ type: String, required: false, description: 'Phone number.' })
+  phone?: string
+
+  @ApiProperty({
+    type: String,
+    required: false,
+    description: 'Avatar URL, set when the account signed up with Google.',
+  })
+  avatar?: string
+
+  @ApiProperty({ type: String, description: 'Account role.' })
+  role: string
+
+  @ApiProperty({
+    type: Date,
+    required: false,
+    description:
+      'When the email was verified. Sending is blocked until this is set.',
+  })
+  emailVerifiedAt?: Date
+
+  @ApiProperty({
+    type: Date,
+    required: false,
+    description: 'Last successful login.',
+  })
+  lastLoginAt?: Date
+
+  @ApiProperty({ type: Date, description: 'When the account was created.' })
+  createdAt: Date
+}
+
+export class AuthSessionDTO {
+  @ApiProperty({
+    type: String,
+    description:
+      'JWT for the dashboard, sent as an Authorization bearer token. API requests use an API key instead.',
+  })
+  accessToken: string
+
+  @ApiProperty({ type: UserDTO, description: 'The signed in account.' })
+  user: UserDTO
+}
+
+export class AuthSessionResponseDTO {
+  @ApiProperty({ type: AuthSessionDTO, description: 'Token and account.' })
+  data: AuthSessionDTO
+}
+
+export class UserResponseDTO {
+  @ApiProperty({ type: UserDTO, description: 'The account.' })
+  data: UserDTO
+}
+
+export class MessageResponseDTO {
+  @ApiProperty({
+    type: String,
+    description: 'What happened, in plain words.',
+    example: 'Password reset successfully',
+  })
+  message: string
+}
+
+export class ApiKeyDTO {
+  @ApiProperty({ type: String, description: 'Key id.' })
+  _id: string
+
+  @ApiProperty({
+    type: String,
+    description: 'Masked key. Only the first characters are stored.',
+    example: '2a1b3c4d5e6f7g8h9******************',
+  })
+  apiKey: string
+
+  @ApiProperty({ type: String, description: 'Label for the key.' })
+  name: string
+
+  @ApiProperty({ type: Number, description: 'Requests made with this key.' })
+  usageCount: number
+
+  @ApiProperty({
+    type: Date,
+    required: false,
+    description: 'Last time the key was used.',
+  })
+  lastUsedAt?: Date
+
+  @ApiProperty({
+    type: Date,
+    required: false,
+    description: 'When the key was revoked. Absent while the key is active.',
+  })
+  revokedAt?: Date
+
+  @ApiProperty({ type: Date, description: 'When the key was created.' })
+  createdAt: Date
+}
+
+export class ApiKeyListResponseDTO {
+  @ApiProperty({ type: [ApiKeyDTO], description: 'Your keys, masked.' })
+  data: ApiKeyDTO[]
+}
+
+export class ApiKeyCreatedResponseDTO {
+  @ApiProperty({
+    type: String,
+    description:
+      'The full API key. This is the only time it is returned, so store it now.',
+  })
+  data: string
+
+  @ApiProperty({
+    type: String,
+    description: 'Reminder that the key will not be shown again.',
+  })
+  message: string
+}

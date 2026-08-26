@@ -1,0 +1,136 @@
+name: Web
+
+on:
+  push:
+    branches:
+      - main
+      - dev
+    paths:
+      - 'web/**'
+      - '.github/workflows/web.yaml'
+
+  pull_request:
+    branches:
+      - main
+      - dev
+    paths:
+      - 'web/**'
+      - '.github/workflows/web.yaml'
+
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: 'Branch to run workflow on'
+        required: true
+        default: 'main'
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  checks:
+    name: Lint, typecheck, unit test, build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: web
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event_name == 'workflow_dispatch' && inputs.branch || github.ref }}
+          persist-credentials: false
+
+      # pnpm has to be on PATH before setup-node, or its pnpm cache resolution
+      # has no package manager to query.
+      - name: Install pnpm
+        uses: pnpm/action-setup@v6
+        with:
+          package_json_file: web/package.json
+          run_install: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: '20'
+          cache: pnpm
+          cache-dependency-path: web/pnpm-lock.yaml
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Typecheck
+        run: pnpm typecheck
+
+      - name: Unit test
+        run: pnpm test
+
+      - name: Build
+        run: pnpm run build
+
+  # E2e is fully mocked (e2e/mock-api.ts intercepts every backend call), but it
+  # drives a real browser and playwright's webServer does its own production
+  # build, so it ran about three times longer than everything else combined.
+  # It sits in its own job so it never delays the blocking signal above.
+  #
+  # TODO: remove continue-on-error once e2e has proven stable across a few
+  # merges. It is here to avoid wedging on a browser flake, not because e2e
+  # failures are acceptable.
+  e2e:
+    name: e2e
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    continue-on-error: true
+    defaults:
+      run:
+        working-directory: web
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event_name == 'workflow_dispatch' && inputs.branch || github.ref }}
+          persist-credentials: false
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v6
+        with:
+          package_json_file: web/package.json
+          run_install: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: '20'
+          cache: pnpm
+          cache-dependency-path: web/pnpm-lock.yaml
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Install Playwright browser
+        run: pnpm exec playwright install --with-deps chromium
+
+      # No build step: playwright.config.ts runs `pnpm build && pnpm start` as
+      # its webServer, and the checks job above already gates the build.
+      - name: Run e2e
+        run: pnpm test:e2e
+
+      - name: Upload playwright report
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: playwright-report-${{ github.run_id }}
+          path: web/playwright-report/
+          retention-days: 7
+          if-no-files-found: ignore
