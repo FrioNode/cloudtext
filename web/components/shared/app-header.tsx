@@ -104,15 +104,15 @@ export default function AppHeader({ session }: { session: Session | null }) {
         <Link className='flex items-center space-x-2' href={Routes.landingPage}>
           <Image
             src='/images/logo.png'
-            alt='textbee Logo'
+            alt='Cloudtext.online logo'
             width={24}
             height={24}
             className='h-6 w-6 rounded-full bg-white'
           />
           <span className='font-bold'>
-            text<span className='text-primary'>bee</span>
+            Cloud<span className='text-primary'>text</span>
             <span className='align-center text-xs text-muted-foreground'>
-              .dev
+              .online
             </span>
           </span>
         </Link>
