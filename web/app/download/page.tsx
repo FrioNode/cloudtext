@@ -13,15 +13,14 @@ import {
 import { Badge } from '@/components/ui/badge'
 import { ExternalLinks } from '@/config/external-links'
 import { formatDate } from '@/lib/format'
-import {
-  getAppReleases,
-  formatBytes,
-  RELEASES_REVALIDATE_SECONDS,
-} from '@/lib/github-releases'
+import { getAppReleases, formatBytes } from '@/lib/github-releases'
 
 // Re-generate this page at most every ~10 minutes so newly published GitHub
-// releases appear automatically, without any code edits.
-export const revalidate = RELEASES_REVALIDATE_SECONDS
+// releases appear automatically, without any code edits. Next.js requires this
+// segment-config export to be a static literal, so it can't reference the
+// shared RELEASES_REVALIDATE_SECONDS constant — keep the two values (600) in
+// sync with lib/github-releases.ts.
+export const revalidate = 600
 
 export default async function DownloadPage() {
   const releases = await getAppReleases()
