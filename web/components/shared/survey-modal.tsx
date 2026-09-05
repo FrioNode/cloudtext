@@ -107,7 +107,7 @@ export const SurveyModal = () => {
     if (!currentUser) return ''
 
     const baseUrl =
-      'https://docs.google.com/forms/d/e/1FAIpQLSe8Vd6bDvJYxwWFaWHyMYrTrrij0cSquteQiYlvggQLzLJxAw/viewform'
+      'https://docs.google.com/forms/d/e/1FAIpQLSdqONJQOgXi_pkg_mLpq2G2yW7bSmyPeDdaJQQCKZkIEyshow/viewform'
     const nameParam = encodeURIComponent(currentUser.name || '').replace(
       /%20/g,
       '+'
@@ -124,7 +124,7 @@ export const SurveyModal = () => {
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogContent className='sm:max-w-4xl max-h-[90vh] overflow-hidden flex flex-col'>
         <DialogHeader>
-          <DialogTitle>Help us improve textbee</DialogTitle>
+          <DialogTitle>Help us improve Cloudtext</DialogTitle>
         </DialogHeader>
 
         <div className='flex-1 min-h-0'>
