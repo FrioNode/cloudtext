@@ -9,9 +9,9 @@ import {
 } from './swagger-config'
 import { PUBLIC_OPERATION_KEYS, toOperationKey } from './public-operations'
 
-const PUBLIC_TITLE = 'textbee API'
+const PUBLIC_TITLE = 'Cloudtext API'
 const PUBLIC_DESCRIPTION =
-  'Send and receive SMS through an Android phone you own. Authenticate every request with an API key from your textbee dashboard, sent as the x-api-key header.'
+  'Send and receive SMS through an Android phone you own. Authenticate every request with an API key from your Cloudtext dashboard, sent as the x-api-key header.'
 const PUBLIC_SERVER_URL = 'https://cloudtextapi.frionode.online'
 const PUBLIC_TAG_NAMES = ['gateway', 'webhooks']
 

@@ -11,7 +11,9 @@ const inter = Inter({
 })
 
 export const metadata: Metadata = {
-  title: 'cloudtext.frionode.online - sms gateway - dashboard',
+  title: 'Cloudtext - Open-source SMS gateway',
+  description:
+    'Turn your Android phone into an SMS gateway for your applications.',
 
   metadataBase: new URL('https://cloudtext.frionode.online'),
 }

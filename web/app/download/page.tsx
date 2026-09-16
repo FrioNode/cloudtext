@@ -14,6 +14,7 @@ import { Badge } from '@/components/ui/badge'
 import { ExternalLinks } from '@/config/external-links'
 import { formatDate } from '@/lib/format'
 import { getAppReleases, formatBytes } from '@/lib/github-releases'
+import Footer from '@/components/shared/footer'
 
 // Re-generate this page at most every ~10 minutes so newly published GitHub
 // releases appear automatically, without any code edits. Next.js requires this
@@ -213,6 +214,7 @@ export default async function DownloadPage() {
           </div>
         </div>
       </div>
+      <Footer />
     </div>
   )
 }

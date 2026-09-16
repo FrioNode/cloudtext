@@ -833,13 +833,13 @@
     }
   },
   "info": {
-    "title": "textbee API",
-    "description": "Send and receive SMS through an Android phone you own. Authenticate every request with an API key from your textbee dashboard, sent as the x-api-key header.",
+    "title": "Cloudtext API",
+    "description": "Send and receive SMS through an Android phone you own. Authenticate every request with an API key from your Cloudtext dashboard, sent as the x-api-key header.",
     "version": "1.0",
     "contact": {},
     "license": {
       "name": "MIT",
-      "url": "https://github.com/textbee/textbee/blob/main/LICENSE"
+      "url": "https://github.com/frionode/cloudtext/blob/main/LICENSE"
     }
   },
   "tags": [
@@ -863,7 +863,7 @@
         "type": "apiKey",
         "in": "header",
         "name": "x-api-key",
-        "description": "API key from your textbee dashboard, sent on every request."
+        "description": "API key from your Cloudtext dashboard, sent on every request."
       }
     },
     "schemas": {

@@ -13,12 +13,12 @@ export const API_TAGS: ReadonlyArray<{ name: string; description: string }> = [
   {
     name: 'webhooks',
     description:
-      'Subscribe to SMS events and inspect the delivery attempts textbee made for them.',
+      'Subscribe to SMS events and inspect delivery attempts made by Cloudtext.',
   },
   {
     name: 'auth',
     description:
-      'Accounts, sessions, and API keys. Used by the textbee dashboard.',
+      'Accounts, sessions, and API keys. Used by the Cloudtext dashboard.',
   },
   {
     name: 'billing',
@@ -40,7 +40,7 @@ export interface SwaggerConfigOptions {
 
 const LICENSE = {
   name: 'MIT',
-  url: 'https://github.com/textbee/textbee/blob/main/LICENSE',
+  url: 'https://github.com/frionode/cloudtext/blob/main/LICENSE',
 } as const
 
 // The server and the openapi exporter both call this, so the documented paths
@@ -71,7 +71,7 @@ export function buildSwaggerConfig({
         name: 'x-api-key',
         in: 'header',
         description:
-          'API key from your textbee dashboard, sent on every request.',
+          'API key from your Cloudtext dashboard, sent on every request.',
       },
       API_KEY_SECURITY_SCHEME,
     )

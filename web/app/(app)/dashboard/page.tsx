@@ -6,6 +6,7 @@ import { useSession } from 'next-auth/react'
 import {
   ArrowRight,
   ArrowUpRightIcon,
+  Download,
   KeyRound,
   Plus,
   Send,
@@ -22,6 +23,7 @@ import AddDeviceDialog, {
   type AddDeviceHandle,
 } from './(components)/devices/add-device-dialog'
 import { useWebhooks } from '@/lib/api'
+import { Routes } from '@/config/routes'
 
 // Compact path to webhooks: it left the mobile tab bar and its management
 // section moved to /dashboard/webhooks, so Home keeps a discoverable link.
@@ -81,6 +83,12 @@ export default function DashboardPage() {
             <Link href='/dashboard/messaging'>
               <Send className='h-4 w-4' />
               Send SMS
+            </Link>
+          </Button>
+          <Button variant='outline' size='sm' asChild>
+            <Link href={Routes.downloadAndroidApp} target='_blank' rel='noopener noreferrer'>
+              <Download className='h-4 w-4' />
+              Download app
             </Link>
           </Button>
           <Button

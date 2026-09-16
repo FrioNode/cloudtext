@@ -1,7 +1,7 @@
 import { ExternalLinks } from '@/config/external-links'
 
 // Single source of truth for the repo, derived from the configured GitHub URL
-// (ExternalLinks.github = "https://github.com/FrioNode/textbee").
+// (ExternalLinks.github = "https://github.com/frionode/cloudtext").
 const REPO_PATH = ExternalLinks.github
   .replace(/^https?:\/\/github\.com\//i, '')
   .replace(/\/+$/, '')
