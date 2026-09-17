@@ -16,6 +16,7 @@ import Footer from '@/components/shared/footer'
 import ChatWidget from '@/components/shared/chat-widget'
 import ThemeToggle from '@/components/shared/theme-toggle'
 import PublicProviders from '@/components/shared/public-providers'
+import BrandLink from '@/components/shared/brand-link'
 
 const features = [
   {
@@ -40,16 +41,7 @@ export default function LandingPage() {
     <PublicProviders>
       <div className='min-h-screen overflow-hidden bg-background text-foreground'>
       <nav className='mx-auto flex max-w-7xl items-center justify-between px-5 py-5 sm:px-8 lg:px-10'>
-        <Link href='/' className='flex items-center gap-3' aria-label='Cloudtext home'>
-          <Image
-            src='/images/logo.png'
-            alt=''
-            width={38}
-            height={38}
-            className='h-9 w-9 rounded-xl'
-          />
-          <span className='text-lg font-bold tracking-tight'>cloudtext<span className='text-primary'>.</span></span>
-        </Link>
+        <BrandLink href='/' />
 
         <div className='hidden items-center gap-8 text-sm font-medium text-muted-foreground md:flex'>
           <Link href='#features' className='transition-colors hover:text-foreground'>Features</Link>

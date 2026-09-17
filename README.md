@@ -1,13 +1,13 @@
-![GitHub stars](https://img.shields.io/github/stars/textbee/textbee)
-![License](https://img.shields.io/github/license/textbee/textbee)
-![Release](https://img.shields.io/github/v/release/textbee/textbee)
+![GitHub stars](https://img.shields.io/github/stars/frionode/cloudtext)
+![License](https://img.shields.io/github/license/frionode/cloudtext)
+![Release](https://img.shields.io/github/v/release/frionode/cloudtext)
 [![Discord](https://img.shields.io/discord/1236287182940016723?label=Discord&logo=discord)](https://cloudtext.frionode.online/discord)
 
 # cloudtext.frionode.online - android sms gateway
 
 Send and receive SMS messages using your own Android phone - no Twilio, no per-message fees. Free, open-source, and self-hostable.
 
-The open-source SMS gateway for developers, automations, and AI agents. Manage SMS messages through a web dashboard, a REST API, or the [MCP server](#use-with-ai-agents-mcp) for AI agents. textbee is ideal for businesses, developers, and hobbyists looking for a reliable and cost-effective solution to automate SMS messaging.
+The open-source SMS gateway for developers, automations, and AI agents. Manage SMS messages through a web dashboard, a REST API, or the [MCP server](#use-with-ai-agents-mcp) for AI agents. cloudtext is ideal for businesses, developers, and hobbyists looking for a reliable and cost-effective solution to automate SMS messaging.
 
 **Website:** [https://cloudtext.frionode.online](https://cloudtext.frionode.online?ref=gh-readme)
 
@@ -15,9 +15,9 @@ The open-source SMS gateway for developers, automations, and AI agents. Manage S
 
 
  
-## Why textbee?
+## Why cloudtext?
  
-|  | textbee | Twilio & similar APIs |
+|  | cloudtext | Twilio & similar APIs |
 |---|---|---|
 | Cost per SMS | Your carrier plan (often free/unlimited) | ~$0.008+ per message |
 | Phone number | Your own SIM | Rented number |
@@ -56,7 +56,7 @@ Messages go out through your default device, or otherwise the enabled device wit
 const API_KEY = 'YOUR_API_KEY';
  
 await axios.post('https://cloudtextapi.frionode.online/api/v1/gateway/send-sms', {
-  recipients: [ '+12025550123' ],
+  recipients: [ '+254700000000' ],
   message: 'Hello World!',
 }, {
   headers: { 'x-api-key': API_KEY },
@@ -117,21 +117,21 @@ curl -X GET "https://cloudtextapi.frionode.online/api/v1/gateway/messages?direct
 
 ### Use with AI agents (MCP)
 
-The official [textbee MCP server](https://github.com/textbee/textbee-mcp) lets Claude Desktop, Claude Code, Cursor, and any MCP-compatible client send and read SMS through your account. Your API key stays on your machine, and plan limits apply server-side like any other send.
+The official [cloudtext MCP server](https://github.com/frionode/cloudtext-mcp) lets Claude Desktop, Claude Code, Cursor, and any MCP-compatible client send and read SMS through your account. Your API key stays on your machine, and plan limits apply server-side like any other send.
 
 ```json
 {
   "mcpServers": {
-    "textbee": {
+    "cloudtext": {
       "command": "npx",
-      "args": ["-y", "@textbee/mcp"],
-      "env": { "TEXTBEE_API_KEY": "YOUR_API_KEY" }
+      "args": ["-y", "@cloudtext/mcp"],
+      "env": { "CLOUDTEXT_API_KEY": "YOUR_API_KEY" }
     }
   }
 }
 ```
 
-Three tools: `send_sms` (send to one or many recipients), `get_messages` (read replies and verification codes, check delivery status), and `list_devices`. Self-hosted instances work with `TEXTBEE_BASE_URL`. Details at [cloudtext.frionode.online/mcp](https://cloudtext.frionode.online/mcp?ref=gh-readme) and the [agent docs](https://cloudtext.frionode.online/docs/agents/mcp?ref=gh-readme).
+Three tools: `send_sms` (send to one or many recipients), `get_messages` (read replies and verification codes, check delivery status), and `list_devices`. Self-hosted instances work with `CLOUDTEXT_BASE_URL`. Details at [cloudtext.frionode.online/mcp](https://cloudtext.frionode.online/mcp?ref=gh-readme) and the [agent docs](https://cloudtext.frionode.online/docs/agents/mcp?ref=gh-readme).
 
 ## Use Cases
  
@@ -149,7 +149,7 @@ Carriers apply their own rate limits and anti-spam policies, which vary by count
 </details>
 <details>
 <summary><b>Is it legal to send marketing SMS this way?</b></summary>
-SMS marketing is regulated in most countries (e.g., TCPA in the US, GDPR/ePrivacy in the EU). textbee is a tool — you are responsible for obtaining consent and complying with the laws that apply to you and your recipients.
+SMS marketing is regulated in most countries (e.g., TCPA in the US, GDPR/ePrivacy in the EU). cloudtext is a tool — you are responsible for obtaining consent and complying with the laws that apply to you and your recipients.
  
 </details>
 <details>
@@ -229,7 +229,7 @@ See [cloudtext.frionode.online](https://cloudtext.frionode.online) for current p
 1. Install `pnpm`, `pm2`, and `Caddy` on your VPS.
 2. Use `pm2` to manage your Node.js processes:
    ```bash
-   pm2 start dist/main.js --name textbee-api
+   pm2 start dist/main.js --name cloudtext-api
    ```
 3. Configure `Caddy` to serve your web application and API. Example Caddyfile:
    ```
@@ -249,7 +249,7 @@ See [cloudtext.frionode.online](https://cloudtext.frionode.online) for current p
    && cd ../api && cp .env.example .env
    ```
 2. Navigate to root folder and execute docker-compose.yml file.    
-   This will spin up `web` container, `api` container alongside with `MongoDB` and `MongoExpress`. `textbee` database will be automatically created.
+   This will spin up `web` container, `api` container alongside with `MongoDB` and `MongoExpress`. `cloudtext` database will be automatically created.
    ```bash
    docker compose up -d
    ```
@@ -262,14 +262,14 @@ See [cloudtext.frionode.online](https://cloudtext.frionode.online) for current p
 
 Contributions are welcome!
 
-1. [Fork](https://github.com/textbee/textbee/fork) the project.
+1. [Fork](https://github.com/cloudtext/cloudtext/fork) the project.
 2. Create a feature or bugfix branch from `main` branch.
 3. Make sure your commit messages and PR comment summaries are descriptive.
 4. Create a pull request to the `main` branch.
 
 ## Bug Reporting and Feature Requests
 
-Please feel free to [create an issue](https://github.com/textbee/textbee/issues/new) in the repository for any bug reports or feature requests. Make sure to provide a detailed description of the issue or feature you are requesting and properly label whether it is a bug or a feature request.
+Please feel free to [create an issue](https://github.com/cloudtext/cloudtext/issues/new) in the repository for any bug reports or feature requests. Make sure to provide a detailed description of the issue or feature you are requesting and properly label whether it is a bug or a feature request.
 
 Please note that if you discover any vulnerability or security issue, we kindly request that you refrain from creating a public issue. Instead, send an email detailing the vulnerability to cloudtext@frionode.online.
 
