@@ -13,6 +13,9 @@ import {
 import { Routes } from '@/config/routes'
 import { ExternalLinks } from '@/config/external-links'
 import Footer from '@/components/shared/footer'
+import ChatWidget from '@/components/shared/chat-widget'
+import ThemeToggle from '@/components/shared/theme-toggle'
+import PublicProviders from '@/components/shared/public-providers'
 
 const features = [
   {
@@ -34,7 +37,8 @@ const features = [
 
 export default function LandingPage() {
   return (
-    <div className='min-h-screen overflow-hidden bg-background text-foreground'>
+    <PublicProviders>
+      <div className='min-h-screen overflow-hidden bg-background text-foreground'>
       <nav className='mx-auto flex max-w-7xl items-center justify-between px-5 py-5 sm:px-8 lg:px-10'>
         <Link href='/' className='flex items-center gap-3' aria-label='Cloudtext home'>
           <Image
@@ -57,6 +61,9 @@ export default function LandingPage() {
         </div>
 
         <div className='flex items-center gap-3'>
+          <div className='w-24 sm:w-28'>
+            <ThemeToggle />
+          </div>
           <Link href={Routes.login} className='hidden px-2 py-2 text-sm font-semibold text-muted-foreground transition-colors hover:text-foreground sm:block'>Sign in</Link>
           <Link href={Routes.register} className='rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground shadow-sm transition-transform hover:-translate-y-0.5 hover:bg-brand-700'>Start sending free</Link>
           <button type='button' className='rounded-lg p-2 text-muted-foreground md:hidden' aria-label='Open navigation'>
@@ -98,11 +105,11 @@ export default function LandingPage() {
 
         <div className='relative flex min-h-[420px] items-center justify-center lg:min-h-[560px]'>
           <div className='absolute left-1/2 top-1/2 h-[360px] w-[360px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-brand-100 blur-3xl sm:h-[500px] sm:w-[500px]' />
-          <div className='absolute right-[8%] top-[18%] hidden rounded-xl border border-border bg-card px-4 py-3 text-sm shadow-xl sm:block'>
+          <div className='absolute right-[8%] top-[18%] z-20 hidden rounded-xl border border-border bg-card px-4 py-3 text-sm shadow-xl sm:block'>
             <div className='mb-1 flex items-center gap-2 font-semibold text-foreground'><MessageSquare className='h-4 w-4 text-primary' /> SMS delivered</div>
             <span className='text-xs text-muted-foreground'>Your verification code is on its way</span>
           </div>
-          <div className='absolute bottom-[14%] left-[3%] hidden items-center gap-2 rounded-xl border border-border bg-card px-4 py-3 text-sm shadow-xl sm:flex'>
+          <div className='absolute bottom-[14%] left-[3%] z-20 hidden items-center gap-2 rounded-xl border border-border bg-card px-4 py-3 text-sm shadow-xl sm:flex'>
             <span className='h-2.5 w-2.5 rounded-full bg-[#35a56b]' /> Gateway online
           </div>
           <Image
@@ -148,6 +155,8 @@ export default function LandingPage() {
         </div>
       </section>
       <Footer />
-    </div>
+      </div>
+      <ChatWidget />
+    </PublicProviders>
   )
 }
