@@ -17,6 +17,12 @@ import ChatWidget from '@/components/shared/chat-widget'
 import ThemeToggle from '@/components/shared/theme-toggle'
 import PublicProviders from '@/components/shared/public-providers'
 import BrandLink from '@/components/shared/brand-link'
+import {
+  Sheet,
+  SheetContent,
+  SheetTrigger,
+  SheetClose,
+} from '@/components/ui/sheet'
 
 const features = [
   {
@@ -58,9 +64,53 @@ export default function LandingPage() {
           </div>
           <Link href={Routes.login} className='hidden px-2 py-2 text-sm font-semibold text-muted-foreground transition-colors hover:text-foreground sm:block'>Sign in</Link>
           <Link href={Routes.register} className='rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground shadow-sm transition-transform hover:-translate-y-0.5 hover:bg-brand-700'>Start sending free</Link>
-          <button type='button' className='rounded-lg p-2 text-muted-foreground md:hidden' aria-label='Open navigation'>
-            <Menu className='h-5 w-5' />
-          </button>
+          <Sheet>
+            <SheetTrigger asChild>
+              <button
+                type='button'
+                className='rounded-lg p-2 text-muted-foreground md:hidden'
+                aria-label='Open navigation'
+              >
+                <Menu className='h-5 w-5' />
+              </button>
+            </SheetTrigger>
+            <SheetContent side='right' className='w-[300px] sm:w-[400px]'>
+              <nav aria-label='Main' className='mt-8 flex flex-col gap-2'>
+                {[
+                  ['Features', '#features'],
+                  ['How it works', '#how-it-works'],
+                  ['API', '#api'],
+                ].map(([label, href]) => (
+                  <SheetClose key={href} asChild>
+                    <Link
+                      href={href}
+                      className='rounded-md px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground'
+                    >
+                      {label}
+                    </Link>
+                  </SheetClose>
+                ))}
+                <SheetClose asChild>
+                  <Link
+                    href={ExternalLinks.github}
+                    target='_blank'
+                    rel='noopener noreferrer'
+                    className='rounded-md px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground'
+                  >
+                    GitHub
+                  </Link>
+                </SheetClose>
+                <SheetClose asChild>
+                  <Link
+                    href={Routes.login}
+                    className='mt-2 rounded-md px-3 py-2 text-sm font-semibold text-foreground hover:bg-muted'
+                  >
+                    Sign in
+                  </Link>
+                </SheetClose>
+              </nav>
+            </SheetContent>
+          </Sheet>
         </div>
       </nav>
 
